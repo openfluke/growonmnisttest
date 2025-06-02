@@ -75,13 +75,34 @@ func main() {
 	evaluateSet(nn, testInputs, testTargets)
 	nn.PrintFullDiagnostics()
 
-	// Evaluate on test set
-	fmt.Println("\n🧪 Test Set Evaluation:")
-	evaluateSet(nn, testInputs, testTargets)
-	nn.PrintFullDiagnostics()
+	// 🔁 Run Grow()
+	fmt.Println("\n🌱 Running ADHD-Based Grow()...")
+	expectedLabels := make([]float64, len(trainTargets))
+	for i := range trainTargets {
+		expectedLabels[i] = float64(paragon.ArgMax(trainTargets[i][0]))
+	}
 
-	// Run ADHD-based growth for 3 iterations
-	growNetworkADHD(nn, trainInputs, trainTargets, 3)
+	improved := nn.Grow(
+		1,              // checkpointLayer
+		trainInputs,    // testInputs
+		expectedLabels, // expectedOutputs
+		50,             // numCandidates
+		5,              // epochs
+		0.05,           // learningRate
+		1e-6,           // tolerance
+		1.0, -1.0,      // clipUpper, clipLower
+		2, 8, // minWidth, maxWidth
+		[]string{"relu", "sigmoid", "tanh"}, // activationPool
+	)
+
+	fmt.Println("\n🧠 Final Network Structure:")
+	printNetworkShape(nn)
+
+	if improved {
+		fmt.Println("🚀 Network successfully improved by Grow()!")
+	} else {
+		fmt.Println("⚡️  No improvement found during Grow().")
+	}
 
 	// Final diagnostic on training set
 	fmt.Println("\n📊 Final ADHD Diagnostic - Training Set:")
@@ -92,7 +113,6 @@ func main() {
 	fmt.Println("\n📊 Final ADHD Diagnostic - Test Set:")
 	evaluateSet(nn, testInputs, testTargets)
 	nn.PrintFullDiagnostics()
-
 }
 
 func evaluateSet[T paragon.Numeric](nn *paragon.Network[T], inputs, targets [][][]float64) {
@@ -108,4 +128,10 @@ func evaluateSet[T paragon.Numeric](nn *paragon.Network[T], inputs, targets [][]
 	}
 
 	nn.EvaluateFull(expected, actual)
+}
+
+func printNetworkShape[T paragon.Numeric](nn *paragon.Network[T]) {
+	for i, layer := range nn.Layers {
+		fmt.Printf("Layer %d: %dx%d (%s)\n", i, layer.Width, layer.Height, layer.Neurons[0][0].Activation)
+	}
 }

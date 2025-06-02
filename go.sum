@@ -2,6 +2,8 @@ github.com/openfluke/paragon v1.0.0 h1:zf92MNzUXeowNmfBqnIiYEez3J8OyBfD7cdRq8DUh
 github.com/openfluke/paragon v1.0.0/go.mod h1:6dZ9C1WCP7fX4GyinH5FAaS97KENT2Zt3c90wa4WBO0=
 github.com/openfluke/paragon v1.0.1-0.20250602092713-e019adf78356 h1:0Clo2mnJ20SrRayWx5etS16ZjM40db74y9QoX+pwSCw=
 github.com/openfluke/paragon v1.0.1-0.20250602092713-e019adf78356/go.mod h1:wc7SqUOiSprRCiZQCWe2Z+QdzOI0UYXwko6qXGGwizA=
+github.com/openfluke/paragon v1.0.1-0.20250602233508-cf7556f02e25 h1:QjzBy2bSfrEhTrQxP2KAteICtDu0EQgaxO/BiWvWPlk=
+github.com/openfluke/paragon v1.0.1-0.20250602233508-cf7556f02e25/go.mod h1:wc7SqUOiSprRCiZQCWe2Z+QdzOI0UYXwko6qXGGwizA=
 github.com/openfluke/pilot v0.0.2 h1:kIzzsle4bAHNtBDOaf2BsUVoAgk49HgFyUphNkw7skw=
 github.com/openfluke/pilot v0.0.2/go.mod h1:lk1GmnZH57lA2eHYQSl/hhlc7h/vSb/AZKC0uMySQPA=
 github.com/openfluke/webgpu v0.0.0-20250602002809-2a3d4670a0d4 h1:ERg69QxWU6JYHBAlQ25m6PMPbcFtLQibMAz5lVvOCbg=
