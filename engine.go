@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/openfluke/paragon"
 	"github.com/openfluke/pilot"
@@ -83,11 +84,13 @@ func main() {
 		expectedLabels[i] = float64(paragon.ArgMax(trainTargets[i][0]))
 	}
 
+	waiting()
+
 	// 🔁 Run Grow() in batches of 64
 	fmt.Println("\n🌱 Running ADHD-Based Grow() in batches...")
 
 	batchSize := 64
-	numBatches := 300
+	numBatches := 3
 	improved := false
 
 	totalCores := runtime.NumCPU()
@@ -97,6 +100,12 @@ func main() {
 	}
 
 	checkpointLayer := 1
+	increaseSizeCount := 0
+	increaseSizeTrigger := 5
+	layerWidthSize := 16
+	layerHeightSize := 16
+	successfulGrowths := 0
+	maxLayersToAdd := 5 // Limit how many layers to add total
 
 	for batch := 0; batch < numBatches; batch++ {
 		start := batch * batchSize
@@ -116,28 +125,66 @@ func main() {
 			expectedLabels[i] = float64(paragon.ArgMax(batchTargets[i][0]))
 		}
 
-		fmt.Printf("\n🔁 Batch %d: Running Grow() on %d samples\n", batch+1, len(batchInputs))
+		// Make sure we don't try to checkpoint beyond valid layers
+		maxCheckpointLayer := len(nn.Layers) - 2 // Can't checkpoint on output layer
+		if checkpointLayer > maxCheckpointLayer {
+			checkpointLayer = maxCheckpointLayer
+		}
+
+		fmt.Printf("\n🔁 Batch %d: Running Grow() on %d samples (checkpoint layer %d)\n",
+			batch+1, len(batchInputs), checkpointLayer)
+
 		if nn.Grow(
 			checkpointLayer, // checkpointLayer
 			batchInputs,     // testInputs
 			expectedLabels,  // expectedOutputs
-			50,              // numCandidates
+			150,             // numCandidates
 			5,               // epochs
-			0.05,            // learningRate
+			0.01,            // learningRate
 			1e-6,            // tolerance
 			1.0, -1.0,       // clipUpper / clipLower
-			16, 16, // minWidth = 16, maxWidth = 16
-			16, 16, // minHeight = 16, maxHeight = 16
-			[]string{"relu"}, // activationPool = always "relu"
+			layerWidthSize, layerWidthSize, // minWidth = 16, maxWidth = 16
+			layerHeightSize, layerHeightSize, // minHeight = 16, maxHeight = 16
+			[]string{"relu", "tanh", "leaky_relu", "sigmoid"}, // activationPool
 			maxThreads,
 		) {
 			improved = true
-			fmt.Println("✅ Batch resulted in improvement.")
-			checkpointLayer += 1
+			successfulGrowths++
+			fmt.Printf("✅ Batch resulted in improvement! (Growth #%d)\n", successfulGrowths)
+
+			// Only move to next checkpoint layer after every 2-3 successful growths
+			// This gives each layer multiple chances to grow
+			if successfulGrowths%2 == 0 && checkpointLayer < len(nn.Layers)-2 {
+				checkpointLayer += 1
+				fmt.Printf("🔄 Moving to checkpoint layer %d\n", checkpointLayer)
+			}
+
+			// Stop if we've added too many layers
+			if successfulGrowths >= maxLayersToAdd {
+				fmt.Printf("🛑 Reached maximum layer limit (%d), stopping growth\n", maxLayersToAdd)
+				break
+			}
+
 		} else {
 			fmt.Println("⚠️  No improvement in this batch.")
+			increaseSizeCount += 1
+			if increaseSizeCount > increaseSizeTrigger {
+				increaseSizeCount = 0
+				layerWidthSize += 1
+				layerHeightSize += 1
+				fmt.Printf("📏 Increased layer size to %dx%d\n", layerWidthSize, layerHeightSize)
+			}
+
+			// Try a different checkpoint layer if current one isn't working
+			if increaseSizeCount%3 == 0 && checkpointLayer > 1 {
+				checkpointLayer = max(1, checkpointLayer-1)
+				fmt.Printf("🔄 Trying earlier checkpoint layer %d\n", checkpointLayer)
+			}
 		}
 
+		// Show current network status
+		fmt.Printf("🏗️  Current network: %d layers, latest growth at layer %d\n",
+			len(nn.Layers), checkpointLayer+1)
 	}
 
 	fmt.Println("\n🧠 Final Network Structure:")
@@ -202,4 +249,10 @@ func printGrowthHistory[T paragon.Numeric](nn *paragon.Network[T]) {
 		fmt.Printf("      Score Before: %.2f → After: %.2f\n", log.ScoreBefore, log.ScoreAfter)
 		fmt.Printf("      ⏰ Time: %s\n", log.Timestamp)
 	}
+}
+
+func waiting() {
+	fmt.Println("Waiting for 5 seconds...")
+	time.Sleep(5 * time.Second)
+	fmt.Println("Done waiting!")
 }
