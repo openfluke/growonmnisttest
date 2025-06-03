@@ -61,12 +61,6 @@ func main() {
 
 	nn.Debug = false
 
-	// Limit train/test to 100 samples each
-	/*trainInputs = trainInputs[:min(100, len(trainInputs))]
-	trainTargets = trainTargets[:min(100, len(trainTargets))]
-	testInputs = testInputs[:min(100, len(testInputs))]
-	testTargets = testTargets[:min(100, len(testTargets))]*/
-
 	// Evaluate on training set
 	fmt.Println("🧪 Training Set Evaluation:")
 	evaluateSet(nn, trainInputs, trainTargets)
@@ -77,20 +71,13 @@ func main() {
 	evaluateSet(nn, testInputs, testTargets)
 	nn.PrintFullDiagnostics()
 
-	// 🔁 Run Grow()
-	fmt.Println("\n🌱 Running ADHD-Based Grow()...")
-	expectedLabels := make([]float64, len(trainTargets))
-	for i := range trainTargets {
-		expectedLabels[i] = float64(paragon.ArgMax(trainTargets[i][0]))
-	}
-
 	waiting()
 
-	// 🔁 Run Grow() in batches of 64
-	fmt.Println("\n🌱 Running ADHD-Based Grow() in batches...")
+	// 🔁 Run Grow() in batches - ONE LAYER PER BATCH
+	fmt.Println("\n🌱 Running ADHD-Based Grow() - One layer per batch...")
 
 	batchSize := 64
-	numBatches := 3
+	numBatches := 20
 	improved := false
 
 	totalCores := runtime.NumCPU()
@@ -100,12 +87,14 @@ func main() {
 	}
 
 	checkpointLayer := 1
-	increaseSizeCount := 0
-	increaseSizeTrigger := 5
-	layerWidthSize := 16
-	layerHeightSize := 16
 	successfulGrowths := 0
-	maxLayersToAdd := 5 // Limit how many layers to add total
+	maxLayersToAdd := 8
+
+	// Fixed layer sizing - start at 16x16, increase when no improvement
+	layerWidth := 16
+	layerHeight := 16
+	noImprovementCount := 0
+	increaseSizeTrigger := 3
 
 	for batch := 0; batch < numBatches; batch++ {
 		start := batch * batchSize
@@ -133,27 +122,28 @@ func main() {
 
 		fmt.Printf("\n🔁 Batch %d: Running Grow() on %d samples (checkpoint layer %d)\n",
 			batch+1, len(batchInputs), checkpointLayer)
+		fmt.Printf("🔧 Using fixed sizing: %dx%d\n", layerWidth, layerHeight)
 
 		if nn.Grow(
-			checkpointLayer, // checkpointLayer
-			batchInputs,     // testInputs
-			expectedLabels,  // expectedOutputs
-			150,             // numCandidates
-			5,               // epochs
-			0.01,            // learningRate
-			1e-6,            // tolerance
-			1.0, -1.0,       // clipUpper / clipLower
-			layerWidthSize, layerWidthSize, // minWidth = 16, maxWidth = 16
-			layerHeightSize, layerHeightSize, // minHeight = 16, maxHeight = 16
-			[]string{"relu", "tanh", "leaky_relu", "sigmoid"}, // activationPool
+			checkpointLayer,
+			batchInputs,
+			expectedLabels,
+			25,        // Reduced candidates for faster growth
+			5,         // epochs
+			0.01,      // learningRate
+			1e-6,      // tolerance
+			1.0, -1.0, // clipUpper / clipLower
+			layerWidth, layerWidth, // Fixed width range (same min/max)
+			layerHeight, layerHeight, // Fixed height range (same min/max)
+			[]string{"relu", "tanh", "leaky_relu", "sigmoid"},
 			maxThreads,
 		) {
 			improved = true
 			successfulGrowths++
+			noImprovementCount = 0 // Reset counter on success
 			fmt.Printf("✅ Batch resulted in improvement! (Growth #%d)\n", successfulGrowths)
 
-			// Only move to next checkpoint layer after every 2-3 successful growths
-			// This gives each layer multiple chances to grow
+			// Move to next checkpoint layer after every 2 successful growths
 			if successfulGrowths%2 == 0 && checkpointLayer < len(nn.Layers)-2 {
 				checkpointLayer += 1
 				fmt.Printf("🔄 Moving to checkpoint layer %d\n", checkpointLayer)
@@ -167,24 +157,26 @@ func main() {
 
 		} else {
 			fmt.Println("⚠️  No improvement in this batch.")
-			increaseSizeCount += 1
-			if increaseSizeCount > increaseSizeTrigger {
-				increaseSizeCount = 0
-				layerWidthSize += 1
-				layerHeightSize += 1
-				fmt.Printf("📏 Increased layer size to %dx%d\n", layerWidthSize, layerHeightSize)
+			noImprovementCount++
+
+			// Increase layer size after several failures
+			if noImprovementCount >= increaseSizeTrigger {
+				noImprovementCount = 0
+				layerWidth += 1
+				layerHeight += 1
+				fmt.Printf("📏 Increased layer size to %dx%d\n", layerWidth, layerHeight)
 			}
 
 			// Try a different checkpoint layer if current one isn't working
-			if increaseSizeCount%3 == 0 && checkpointLayer > 1 {
+			if batch%3 == 0 && checkpointLayer > 1 {
 				checkpointLayer = max(1, checkpointLayer-1)
 				fmt.Printf("🔄 Trying earlier checkpoint layer %d\n", checkpointLayer)
 			}
 		}
 
 		// Show current network status
-		fmt.Printf("🏗️  Current network: %d layers, latest growth at layer %d\n",
-			len(nn.Layers), checkpointLayer+1)
+		fmt.Printf("🏗️  Current network: %d layers, checkpoint at layer %d\n",
+			len(nn.Layers), checkpointLayer)
 	}
 
 	fmt.Println("\n🧠 Final Network Structure:")
@@ -206,14 +198,8 @@ func main() {
 	evaluateSet(nn, testInputs, testTargets)
 	nn.PrintFullDiagnostics()
 
-	// Final diagnostic on test set
-	fmt.Println("\n📊 Final ADHD Diagnostic - Test Set:")
-	evaluateSet(nn, testInputs, testTargets)
-	nn.PrintFullDiagnostics()
-
 	// 🌱 Growth history
 	printGrowthHistory(nn)
-
 }
 
 func evaluateSet[T paragon.Numeric](nn *paragon.Network[T], inputs, targets [][][]float64) {
