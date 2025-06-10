@@ -17,11 +17,11 @@ import (
 const (
 	modelPath         = "mnist_model_float32.json"
 	dataPath          = "./data/mnist"
-	epochs            = 3
+	epochs            = 1
 	learningRate      = 0.5
 	logFilePath       = "neural_network_growth.log"
 	checkpointFile    = "growth_checkpoint.json"
-	maxGrowthAttempts = 25
+	maxGrowthAttempts = 50
 	initialBatchSize  = 16
 	trainChunkSize    = 1000
 	testChunkSize     = 200
@@ -171,9 +171,9 @@ func main() {
 		startChunk = 0
 
 		// Perform initial training on the first batch
-		firstBatchInputs := trainInputs[0:initialBatchSize]
-		firstBatchTargets := trainTargets[0:initialBatchSize]
-		nn.Train(firstBatchInputs, firstBatchTargets, 5, learningRate, false, clippingUp, clippingLow)
+		//firstBatchInputs := trainInputs[0:initialBatchSize]
+		//firstBatchTargets := trainTargets[0:initialBatchSize]
+		//nn.Train(firstBatchInputs, firstBatchTargets, 5, learningRate, false, clippingUp, clippingLow)
 		fmt.Println("🆕 Starting with fresh network")
 
 	}
@@ -406,7 +406,7 @@ func runGrowthCycle(
 				checkpointLayer,
 				batchInputs,
 				expectedLabels,
-				20, 3, learningRate, 1e-6,
+				20, epochs, learningRate, 1e-6,
 				clippingUp, clippingLow,
 				globalMinWidth, globalMaxWidth, globalMinHeight, globalMaxHeight,
 				[]string{"relu", "tanh", "leaky_relu", "sigmoid", "elu"},
