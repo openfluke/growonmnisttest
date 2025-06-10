@@ -2,70 +2,964 @@
 ========================================
 NEURAL NETWORK SYSTEMATIC GROWTH LOG
 ========================================
-Started: 2025-06-09 14:15:52
-Strategy: Only appending 32x32 layers (any activation)
-Batch Size: 16 (for Grow() function)
-Max Attempts: 25
+Started: 2025-06-10 12:06:07
+Host: fedora
+Go Version: go1.24.3
+CPUs: 18
+Strategy: Processing full dataset in chunks
+Chunk Size: Train=1000, Test=200
+Max Attempts per chunk: 25
+Models saved to: ./models
+Growth Strategy: Appending 32x32 layers with various activations
+Acceptance Criteria: Train improvement >1.0 OR Test improvement >1.0
 
-NOTE: Before/After scores are FULL NETWORK ADHD SCORES on entire datasets
-Grow() uses small batches to find layers, but acceptance is based on full network improvement
+Log Format:
+- Each attempt shows detailed metrics
+- Memory usage tracked throughout
+- Network architecture changes logged
+- Timing information for all operations
+- Model saves tracked with filenames
 
-Acceptance Criteria: 
-- Train improvement >1.0 OR Test improvement >1.0 (either one is fine!)
 
-Columns:
-Attempt | Timestamp | Checkpoint | Train_Before | Train_After | Train_Improvement | Test_Before | Test_After | Test_Improvement | Found | Accepted | LayerIdx | LayerSize | Activation | NetworkLayers
 
-INITIAL STATE: 3 layers, Train Score: 31.4387, Test Score: 33.7788
-1 | 2025-06-09 14:16:06 | 1 | 31.4387 | 51.8708 | +20.4321 | 33.7788 | 50.9071 | +17.1284 | YES | YES | 2 | 32x32 | relu | 3→4
-ACCEPTED GROWTH #1 (Attempt 1): TRAIN 51.8708 (+20.4321) | TEST 50.9071 (+17.1284)
-2 | 2025-06-09 14:16:28 | 1 | 51.8708 | 52.9089 | +1.0381 | 50.9071 | 55.4292 | +4.5220 | YES | YES | 3 | 32x32 | relu | 4→5
-ACCEPTED GROWTH #2 (Attempt 2): TRAIN 52.9089 (+1.0381) | TEST 55.4292 (+4.5220)
-3 | 2025-06-09 14:16:50 | 1 | 52.9089 | 59.1183 | +6.2094 | 55.4292 | 52.1702 | -3.2589 | YES | YES | 4 | 32x32 | relu | 5→6
-ACCEPTED GROWTH #3 (Attempt 3): TRAIN 59.1183 (+6.2094) | TEST 52.1702 (-3.2589)
-4 | 2025-06-09 14:17:14 | 1 | 59.1183 | 51.8309 | -7.2875 | 52.1702 | 50.8738 | -1.2964 | YES | NO | 5 | 32x32 | relu | 6→7
-4 | 2025-06-09 14:17:41 | 2 | 59.1183 | 45.6854 | -13.4329 | 52.1702 | 40.8780 | -11.2923 | YES | NO | 5 | 32x32 | relu | 6→7
-4 | 2025-06-09 14:17:53 | 3 | 59.1183 | 59.1183 | +0.0000 | 52.1702 | 52.1702 | +0.0000 | NO | NO | - | - | - | 6→6
-4 | 2025-06-09 14:18:20 | 4 | 59.1183 | 51.5865 | -7.5318 | 52.1702 | 49.0966 | -3.0736 | YES | NO | 5 | 32x32 | leaky_relu | 6→7
-5 | 2025-06-09 14:18:42 | 1 | 59.1183 | 58.7395 | -0.3788 | 52.1702 | 55.5079 | +3.3377 | YES | YES | 5 | 32x32 | relu | 6→7
-ACCEPTED GROWTH #4 (Attempt 5): TRAIN 58.7395 (-0.3788) | TEST 55.5079 (+3.3377)
-6 | 2025-06-09 14:19:03 | 1 | 58.7395 | 52.2635 | -6.4761 | 55.5079 | 54.8798 | -0.6282 | YES | NO | 6 | 32x32 | relu | 7→8
-6 | 2025-06-09 14:19:15 | 2 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-6 | 2025-06-09 14:19:41 | 3 | 58.7395 | 52.4265 | -6.3130 | 55.5079 | 55.0758 | -0.4321 | YES | NO | 6 | 32x32 | relu | 7→8
-6 | 2025-06-09 14:20:08 | 4 | 58.7395 | 49.2256 | -9.5139 | 55.5079 | 48.8294 | -6.6786 | YES | NO | 6 | 32x32 | relu | 7→8
-6 | 2025-06-09 14:20:34 | 5 | 58.7395 | 48.1700 | -10.5696 | 55.5079 | 46.9645 | -8.5435 | YES | NO | 6 | 32x32 | relu | 7→8
-7 | 2025-06-09 14:20:55 | 1 | 58.7395 | 50.3959 | -8.3437 | 55.5079 | 46.7627 | -8.7452 | YES | NO | 6 | 32x32 | relu | 7→8
-7 | 2025-06-09 14:21:20 | 2 | 58.7395 | 52.4615 | -6.2781 | 55.5079 | 51.5415 | -3.9665 | YES | NO | 6 | 32x32 | relu | 7→8
-7 | 2025-06-09 14:21:31 | 3 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-7 | 2025-06-09 14:21:56 | 4 | 58.7395 | 51.5879 | -7.1517 | 55.5079 | 51.4319 | -4.0760 | YES | NO | 6 | 32x32 | relu | 7→8
-7 | 2025-06-09 14:22:23 | 5 | 58.7395 | 48.7590 | -9.9806 | 55.5079 | 45.7123 | -9.7956 | YES | NO | 6 | 32x32 | leaky_relu | 7→8
-8 | 2025-06-09 14:22:45 | 1 | 58.7395 | 55.1609 | -3.5787 | 55.5079 | 52.0534 | -3.4546 | YES | NO | 6 | 32x32 | relu | 7→8
-8 | 2025-06-09 14:22:58 | 2 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-8 | 2025-06-09 14:23:24 | 3 | 58.7395 | 37.2963 | -21.4432 | 55.5079 | 34.7129 | -20.7950 | YES | NO | 6 | 32x32 | relu | 7→8
-8 | 2025-06-09 14:23:36 | 4 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-8 | 2025-06-09 14:24:03 | 5 | 58.7395 | 50.7525 | -7.9871 | 55.5079 | 46.4093 | -9.0986 | YES | NO | 6 | 32x32 | relu | 7→8
-9 | 2025-06-09 14:24:26 | 1 | 58.7395 | 49.9894 | -8.7501 | 55.5079 | 47.1468 | -8.3611 | YES | NO | 6 | 32x32 | relu | 7→8
-9 | 2025-06-09 14:24:53 | 2 | 58.7395 | 52.6158 | -6.1238 | 55.5079 | 50.5514 | -4.9565 | YES | NO | 6 | 32x32 | relu | 7→8
-9 | 2025-06-09 14:25:18 | 3 | 58.7395 | 52.6096 | -6.1299 | 55.5079 | 51.0268 | -4.4812 | YES | NO | 6 | 32x32 | relu | 7→8
-9 | 2025-06-09 14:25:30 | 4 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-9 | 2025-06-09 14:25:56 | 5 | 58.7395 | 43.4977 | -15.2419 | 55.5079 | 46.2692 | -9.2387 | YES | NO | 6 | 32x32 | relu | 7→8
-10 | 2025-06-09 14:26:19 | 1 | 58.7395 | 49.1024 | -9.6371 | 55.5079 | 46.9917 | -8.5163 | YES | NO | 6 | 32x32 | relu | 7→8
-10 | 2025-06-09 14:26:30 | 2 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-10 | 2025-06-09 14:26:42 | 3 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-10 | 2025-06-09 14:26:54 | 4 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-10 | 2025-06-09 14:27:20 | 5 | 58.7395 | 51.9284 | -6.8112 | 55.5079 | 50.0188 | -5.4891 | YES | NO | 6 | 32x32 | relu | 7→8
-11 | 2025-06-09 14:27:42 | 1 | 58.7395 | 50.8668 | -7.8727 | 55.5079 | 48.4986 | -7.0093 | YES | NO | 6 | 32x32 | relu | 7→8
-11 | 2025-06-09 14:27:53 | 2 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-11 | 2025-06-09 14:28:04 | 3 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-11 | 2025-06-09 14:28:30 | 4 | 58.7395 | 52.0815 | -6.6581 | 55.5079 | 49.0776 | -6.4304 | YES | NO | 6 | 32x32 | relu | 7→8
-11 | 2025-06-09 14:28:42 | 5 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-12 | 2025-06-09 14:29:04 | 1 | 58.7395 | 46.7529 | -11.9867 | 55.5079 | 48.6548 | -6.8532 | YES | NO | 6 | 32x32 | relu | 7→8
-12 | 2025-06-09 14:29:29 | 2 | 58.7395 | 50.8682 | -7.8713 | 55.5079 | 50.1681 | -5.3399 | YES | NO | 6 | 32x32 | relu | 7→8
-12 | 2025-06-09 14:29:41 | 3 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-12 | 2025-06-09 14:29:54 | 4 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-12 | 2025-06-09 14:30:21 | 5 | 58.7395 | 48.3456 | -10.3939 | 55.5079 | 47.5728 | -7.9351 | YES | NO | 6 | 32x32 | relu | 7→8
-13 | 2025-06-09 14:30:43 | 1 | 58.7395 | 54.4510 | -4.2885 | 55.5079 | 51.5371 | -3.9708 | YES | NO | 6 | 32x32 | relu | 7→8
-13 | 2025-06-09 14:30:54 | 2 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-13 | 2025-06-09 14:31:05 | 3 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-13 | 2025-06-09 14:31:17 | 4 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
-13 | 2025-06-09 14:31:29 | 5 | 58.7395 | 58.7395 | +0.0000 | 55.5079 | 55.5079 | +0.0000 | NO | NO | - | - | - | 7→7
+========== PROCESSING CHUNK 1/70 ==========
+
+--- Attempt 1/25 started at 12:06:09 ---
+1 | 2025-06-10 12:06:21 | 1 | 42.1951 | 46.1122 | +3.9171 | 38.9272 | 42.4438 | +3.5167 | YES | YES | 2 | 32x32 | relu | 3→4
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:06:21
+├─ Duration: 12.701874928s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 3 → 4
+├─ Scores:
+│  ├─ Train: 42.1951 → 46.1122 (improvement: +3.9171)
+│  └─ Test:  38.9272 → 42.4438 (improvement: +3.5167)
+├─ New Layer Details:
+│  ├─ Index: 2
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 1604.90 MB
+│  └─ System: 2010.43 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+→ Layer 2: 32x32 (relu)
+  Layer 3: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 2/25 started at 12:06:23 ---
+2 | 2025-06-10 12:06:43 | 1 | 46.1122 | 44.5824 | -1.5298 | 42.4438 | 40.4484 | -1.9954 | YES | NO | 3 | 32x32 | relu | 4→5
+
+Growth Attempt #2 Details:
+├─ Timestamp: 2025-06-10 12:06:43
+├─ Duration: 20.850334245s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 4 → 5
+├─ Scores:
+│  ├─ Train: 46.1122 → 44.5824 (improvement: -1.5298)
+│  └─ Test:  42.4438 → 40.4484 (improvement: -1.9954)
+├─ New Layer Details:
+│  ├─ Index: 3
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2930.73 MB
+│  └─ System: 2975.17 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+→ Layer 3: 32x32 (relu)
+  Layer 4: 10x1 (softmax)
+────────────────────────────────
+2 | 2025-06-10 12:06:54 | 2 | 46.1122 | 46.1122 | +0.0000 | 42.4438 | 42.4438 | +0.0000 | NO | NO | - | - | - | 4→4
+
+Growth Attempt #2 Details:
+├─ Timestamp: 2025-06-10 12:06:54
+├─ Duration: 31.693334751s
+├─ Checkpoint Layer: 2
+├─ Batch Size: 16
+├─ Network Layers: 4 → 4
+├─ Scores:
+│  ├─ Train: 46.1122 → 46.1122 (improvement: +0.0000)
+│  └─ Test:  42.4438 → 42.4438 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2007.24 MB
+│  └─ System: 3153.12 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+
+--- Attempt 3/25 started at 12:06:54 ---
+3 | 2025-06-10 12:07:15 | 1 | 46.1122 | 52.8645 | +6.7523 | 42.4438 | 46.8460 | +4.4022 | YES | YES | 3 | 32x32 | relu | 4→5
+
+Growth Attempt #3 Details:
+├─ Timestamp: 2025-06-10 12:07:15
+├─ Duration: 20.510524567s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 4 → 5
+├─ Scores:
+│  ├─ Train: 46.1122 → 52.8645 (improvement: +6.7523)
+│  └─ Test:  42.4438 → 46.8460 (improvement: +4.4022)
+├─ New Layer Details:
+│  ├─ Index: 3
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2246.17 MB
+│  └─ System: 3242.00 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+→ Layer 3: 32x32 (relu)
+  Layer 4: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 4/25 started at 12:07:16 ---
+4 | 2025-06-10 12:07:37 | 1 | 52.8645 | 50.8002 | -2.0643 | 46.8460 | 49.4651 | +2.6190 | YES | YES | 4 | 32x32 | relu | 5→6
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:07:37
+├─ Duration: 21.355122774s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 5 → 6
+├─ Scores:
+│  ├─ Train: 52.8645 → 50.8002 (improvement: -2.0643)
+│  └─ Test:  46.8460 → 49.4651 (improvement: +2.6190)
+├─ New Layer Details:
+│  ├─ Index: 4
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 743.25 MB
+│  └─ System: 3243.00 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+→ Layer 4: 32x32 (relu)
+  Layer 5: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 5/25 started at 12:07:39 ---
+5 | 2025-06-10 12:08:01 | 1 | 50.8002 | 54.6735 | +3.8733 | 49.4651 | 47.6587 | -1.8063 | YES | YES | 5 | 32x32 | relu | 6→7
+
+Growth Attempt #5 Details:
+├─ Timestamp: 2025-06-10 12:08:01
+├─ Duration: 22.27075788s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 6 → 7
+├─ Scores:
+│  ├─ Train: 50.8002 → 54.6735 (improvement: +3.8733)
+│  └─ Test:  49.4651 → 47.6587 (improvement: -1.8063)
+├─ New Layer Details:
+│  ├─ Index: 5
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 1743.23 MB
+│  └─ System: 3243.00 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+→ Layer 5: 32x32 (relu)
+  Layer 6: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 6/25 started at 12:08:02 ---
+6 | 2025-06-10 12:08:24 | 1 | 54.6735 | 56.1823 | +1.5088 | 47.6587 | 54.2163 | +6.5575 | YES | YES | 6 | 32x32 | relu | 7→8
+
+Growth Attempt #6 Details:
+├─ Timestamp: 2025-06-10 12:08:24
+├─ Duration: 22.023423946s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 7 → 8
+├─ Scores:
+│  ├─ Train: 54.6735 → 56.1823 (improvement: +1.5088)
+│  └─ Test:  47.6587 → 54.2163 (improvement: +6.5575)
+├─ New Layer Details:
+│  ├─ Index: 6
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2429.00 MB
+│  └─ System: 3243.00 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (relu)
+→ Layer 6: 32x32 (relu)
+  Layer 7: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 7/25 started at 12:08:25 ---
+7 | 2025-06-10 12:08:49 | 1 | 56.1823 | 46.8899 | -9.2924 | 54.2163 | 45.4865 | -8.7298 | YES | NO | 7 | 32x32 | relu | 8→9
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:08:49
+├─ Duration: 23.623265046s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 8 → 9
+├─ Scores:
+│  ├─ Train: 56.1823 → 46.8899 (improvement: -9.2924)
+│  └─ Test:  54.2163 → 45.4865 (improvement: -8.7298)
+├─ New Layer Details:
+│  ├─ Index: 7
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2148.79 MB
+│  └─ System: 3427.69 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+→ Layer 7: 32x32 (relu)
+  Layer 8: 10x1 (softmax)
+────────────────────────────────
+7 | 2025-06-10 12:09:16 | 2 | 56.1823 | 46.0611 | -10.1212 | 54.2163 | 46.1849 | -8.0313 | YES | NO | 7 | 32x32 | relu | 8→9
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:09:16
+├─ Duration: 50.296162583s
+├─ Checkpoint Layer: 2
+├─ Batch Size: 16
+├─ Network Layers: 8 → 9
+├─ Scores:
+│  ├─ Train: 56.1823 → 46.0611 (improvement: -10.1212)
+│  └─ Test:  54.2163 → 46.1849 (improvement: -8.0313)
+├─ New Layer Details:
+│  ├─ Index: 7
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 3323.76 MB
+│  └─ System: 3429.69 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+→ Layer 7: 32x32 (relu)
+  Layer 8: 10x1 (softmax)
+────────────────────────────────
+7 | 2025-06-10 12:09:42 | 3 | 56.1823 | 46.2472 | -9.9351 | 54.2163 | 40.7835 | -13.4327 | YES | NO | 7 | 32x32 | relu | 8→9
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:09:42
+├─ Duration: 1m16.577772415s
+├─ Checkpoint Layer: 3
+├─ Batch Size: 16
+├─ Network Layers: 8 → 9
+├─ Scores:
+│  ├─ Train: 56.1823 → 46.2472 (improvement: -9.9351)
+│  └─ Test:  54.2163 → 40.7835 (improvement: -13.4327)
+├─ New Layer Details:
+│  ├─ Index: 7
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 1124.44 MB
+│  └─ System: 3430.98 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+→ Layer 7: 32x32 (relu)
+  Layer 8: 10x1 (softmax)
+────────────────────────────────
+7 | 2025-06-10 12:09:54 | 4 | 56.1823 | 56.1823 | +0.0000 | 54.2163 | 54.2163 | +0.0000 | NO | NO | - | - | - | 8→8
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:09:54
+├─ Duration: 1m28.499096865s
+├─ Checkpoint Layer: 4
+├─ Batch Size: 16
+├─ Network Layers: 8 → 8
+├─ Scores:
+│  ├─ Train: 56.1823 → 56.1823 (improvement: +0.0000)
+│  └─ Test:  54.2163 → 54.2163 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 1862.49 MB
+│  └─ System: 3430.98 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+7 | 2025-06-10 12:10:06 | 5 | 56.1823 | 56.1823 | +0.0000 | 54.2163 | 54.2163 | +0.0000 | NO | NO | - | - | - | 8→8
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:10:06
+├─ Duration: 1m40.418424408s
+├─ Checkpoint Layer: 5
+├─ Batch Size: 16
+├─ Network Layers: 8 → 8
+├─ Scores:
+│  ├─ Train: 56.1823 → 56.1823 (improvement: +0.0000)
+│  └─ Test:  54.2163 → 54.2163 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 1734.57 MB
+│  └─ System: 3431.29 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+7 | 2025-06-10 12:10:32 | 6 | 56.1823 | 50.9700 | -5.2123 | 54.2163 | 48.9796 | -5.2367 | YES | NO | 7 | 32x32 | leaky_relu | 8→9
+
+Growth Attempt #7 Details:
+├─ Timestamp: 2025-06-10 12:10:32
+├─ Duration: 2m6.639510214s
+├─ Checkpoint Layer: 6
+├─ Batch Size: 16
+├─ Network Layers: 8 → 9
+├─ Scores:
+│  ├─ Train: 56.1823 → 50.9700 (improvement: -5.2123)
+│  └─ Test:  54.2163 → 48.9796 (improvement: -5.2367)
+├─ New Layer Details:
+│  ├─ Index: 7
+│  ├─ Size: 32x32
+│  └─ Activation: leaky_relu
+├─ Memory Usage:
+│  ├─ Allocated: 1197.69 MB
+│  └─ System: 3431.92 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (relu)
+→ Layer 7: 32x32 (leaky_relu)
+  Layer 8: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 8/25 started at 12:10:32 ---
+8 | 2025-06-10 12:10:55 | 1 | 56.1823 | 55.2310 | -0.9513 | 54.2163 | 56.1034 | +1.8871 | YES | YES | 7 | 32x32 | relu | 8→9
+
+Growth Attempt #8 Details:
+├─ Timestamp: 2025-06-10 12:10:55
+├─ Duration: 22.393999031s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 8 → 9
+├─ Scores:
+│  ├─ Train: 56.1823 → 55.2310 (improvement: -0.9513)
+│  └─ Test:  54.2163 → 56.1034 (improvement: +1.8871)
+├─ New Layer Details:
+│  ├─ Index: 7
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2148.98 MB
+│  └─ System: 3431.92 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+→ Layer 7: 32x32 (relu)
+  Layer 8: 10x1 (softmax)
+────────────────────────────────
+
+========== CHUNK 0 COMPLETE ==========
+Time Range: 12:11:03
+Duration: 4m55.361529138s
+Train indices: [0:1000] (1000 samples)
+Test indices: [0:200] (200 samples)
+Initial score: 42.1951
+Final score: 55.2310
+Total improvement: +13.0359
+Growths accepted: 6
+Models saved: 6
+Average time per growth: 11.814461165s
+Memory at completion:
+  - Allocated: 1279.18 MB
+  - Total: 3668.18 MB
+  - GC runs: 66
+=====================================
+
+
+========== PROCESSING CHUNK 2/70 ==========
+
+--- Attempt 1/25 started at 12:11:11 ---
+1 | 2025-06-10 12:11:34 | 1 | 54.9989 | 51.9903 | -3.0086 | 58.7125 | 50.8633 | -7.8492 | YES | NO | 8 | 32x32 | relu | 9→10
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:11:34
+├─ Duration: 23.349871832s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 9 → 10
+├─ Scores:
+│  ├─ Train: 54.9989 → 51.9903 (improvement: -3.0086)
+│  └─ Test:  58.7125 → 50.8633 (improvement: -7.8492)
+├─ New Layer Details:
+│  ├─ Index: 8
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2173.15 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (relu)
+→ Layer 8: 32x32 (relu)
+  Layer 9: 10x1 (softmax)
+────────────────────────────────
+1 | 2025-06-10 12:12:00 | 2 | 54.9989 | 46.1686 | -8.8303 | 58.7125 | 51.3425 | -7.3700 | YES | NO | 8 | 32x32 | relu | 9→10
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:12:00
+├─ Duration: 49.723783061s
+├─ Checkpoint Layer: 2
+├─ Batch Size: 16
+├─ Network Layers: 9 → 10
+├─ Scores:
+│  ├─ Train: 54.9989 → 46.1686 (improvement: -8.8303)
+│  └─ Test:  58.7125 → 51.3425 (improvement: -7.3700)
+├─ New Layer Details:
+│  ├─ Index: 8
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 791.40 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (relu)
+→ Layer 8: 32x32 (relu)
+  Layer 9: 10x1 (softmax)
+────────────────────────────────
+1 | 2025-06-10 12:12:12 | 3 | 54.9989 | 54.9989 | +0.0000 | 58.7125 | 58.7125 | +0.0000 | NO | NO | - | - | - | 9→9
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:12:12
+├─ Duration: 1m1.939873101s
+├─ Checkpoint Layer: 3
+├─ Batch Size: 16
+├─ Network Layers: 9 → 9
+├─ Scores:
+│  ├─ Train: 54.9989 → 54.9989 (improvement: +0.0000)
+│  └─ Test:  58.7125 → 58.7125 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2955.34 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+1 | 2025-06-10 12:12:25 | 4 | 54.9989 | 54.9989 | +0.0000 | 58.7125 | 58.7125 | +0.0000 | NO | NO | - | - | - | 9→9
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:12:25
+├─ Duration: 1m14.192408756s
+├─ Checkpoint Layer: 4
+├─ Batch Size: 16
+├─ Network Layers: 9 → 9
+├─ Scores:
+│  ├─ Train: 54.9989 → 54.9989 (improvement: +0.0000)
+│  └─ Test:  58.7125 → 58.7125 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2955.72 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+1 | 2025-06-10 12:12:37 | 5 | 54.9989 | 54.9989 | +0.0000 | 58.7125 | 58.7125 | +0.0000 | NO | NO | - | - | - | 9→9
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:12:37
+├─ Duration: 1m26.11304333s
+├─ Checkpoint Layer: 5
+├─ Batch Size: 16
+├─ Network Layers: 9 → 9
+├─ Scores:
+│  ├─ Train: 54.9989 → 54.9989 (improvement: +0.0000)
+│  └─ Test:  58.7125 → 58.7125 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2622.06 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+1 | 2025-06-10 12:13:04 | 6 | 54.9989 | 52.7671 | -2.2318 | 58.7125 | 46.4260 | -12.2865 | YES | NO | 8 | 32x32 | relu | 9→10
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:13:04
+├─ Duration: 1m53.063173408s
+├─ Checkpoint Layer: 6
+├─ Batch Size: 16
+├─ Network Layers: 9 → 10
+├─ Scores:
+│  ├─ Train: 54.9989 → 52.7671 (improvement: -2.2318)
+│  └─ Test:  58.7125 → 46.4260 (improvement: -12.2865)
+├─ New Layer Details:
+│  ├─ Index: 8
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 1199.87 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+  Layer 7: 32x32 (relu)
+→ Layer 8: 32x32 (relu)
+  Layer 9: 10x1 (softmax)
+────────────────────────────────
+1 | 2025-06-10 12:13:30 | 7 | 54.9989 | 43.3576 | -11.6413 | 58.7125 | 44.4867 | -14.2258 | YES | NO | 8 | 32x32 | leaky_relu | 9→10
+
+Growth Attempt #1 Details:
+├─ Timestamp: 2025-06-10 12:13:30
+├─ Duration: 2m19.883618563s
+├─ Checkpoint Layer: 7
+├─ Batch Size: 16
+├─ Network Layers: 9 → 10
+├─ Scores:
+│  ├─ Train: 54.9989 → 43.3576 (improvement: -11.6413)
+│  └─ Test:  58.7125 → 44.4867 (improvement: -14.2258)
+├─ New Layer Details:
+│  ├─ Index: 8
+│  ├─ Size: 32x32
+│  └─ Activation: leaky_relu
+├─ Memory Usage:
+│  ├─ Allocated: 2046.44 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (relu)
+  Layer 7: 32x32 (relu)
+→ Layer 8: 32x32 (leaky_relu)
+  Layer 9: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 2/25 started at 12:13:30 ---
+2 | 2025-06-10 12:13:54 | 1 | 54.9989 | 56.6325 | +1.6336 | 58.7125 | 54.0558 | -4.6567 | YES | YES | 8 | 32x32 | relu | 9→10
+
+Growth Attempt #2 Details:
+├─ Timestamp: 2025-06-10 12:13:54
+├─ Duration: 23.403143485s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 9 → 10
+├─ Scores:
+│  ├─ Train: 54.9989 → 56.6325 (improvement: +1.6336)
+│  └─ Test:  58.7125 → 54.0558 (improvement: -4.6567)
+├─ New Layer Details:
+│  ├─ Index: 8
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 827.97 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (leaky_relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (relu)
+→ Layer 8: 32x32 (relu)
+  Layer 9: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 3/25 started at 12:13:55 ---
+3 | 2025-06-10 12:14:19 | 1 | 56.6325 | 38.6454 | -17.9872 | 54.0558 | 37.1875 | -16.8683 | YES | NO | 9 | 32x32 | relu | 10→11
+
+Growth Attempt #3 Details:
+├─ Timestamp: 2025-06-10 12:14:19
+├─ Duration: 23.370868986s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 10 → 11
+├─ Scores:
+│  ├─ Train: 56.6325 → 38.6454 (improvement: -17.9872)
+│  └─ Test:  54.0558 → 37.1875 (improvement: -16.8683)
+├─ New Layer Details:
+│  ├─ Index: 9
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2922.89 MB
+│  └─ System: 3668.18 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (relu)
+→ Layer 9: 32x32 (relu)
+  Layer 10: 10x1 (softmax)
+────────────────────────────────
+3 | 2025-06-10 12:14:30 | 2 | 56.6325 | 56.6325 | +0.0000 | 54.0558 | 54.0558 | +0.0000 | NO | NO | - | - | - | 10→10
+
+Growth Attempt #3 Details:
+├─ Timestamp: 2025-06-10 12:14:30
+├─ Duration: 35.236174375s
+├─ Checkpoint Layer: 2
+├─ Batch Size: 16
+├─ Network Layers: 10 → 10
+├─ Scores:
+│  ├─ Train: 56.6325 → 56.6325 (improvement: +0.0000)
+│  └─ Test:  54.0558 → 54.0558 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2632.22 MB
+│  └─ System: 3669.93 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+3 | 2025-06-10 12:14:57 | 3 | 56.6325 | 59.9291 | +3.2965 | 54.0558 | 59.0581 | +5.0024 | YES | YES | 9 | 32x32 | relu | 10→11
+
+Growth Attempt #3 Details:
+├─ Timestamp: 2025-06-10 12:14:57
+├─ Duration: 1m2.205891698s
+├─ Checkpoint Layer: 3
+├─ Batch Size: 16
+├─ Network Layers: 10 → 11
+├─ Scores:
+│  ├─ Train: 56.6325 → 59.9291 (improvement: +3.2965)
+│  └─ Test:  54.0558 → 59.0581 (improvement: +5.0024)
+├─ New Layer Details:
+│  ├─ Index: 9
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2964.70 MB
+│  └─ System: 3669.93 MB
+└─ Decision: ✅ ACCEPTED (Improvement threshold met)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (relu)
+→ Layer 9: 32x32 (relu)
+  Layer 10: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 4/25 started at 12:15:00 ---
+4 | 2025-06-10 12:15:35 | 1 | 59.9291 | 55.0093 | -4.9198 | 59.0581 | 52.1151 | -6.9431 | YES | NO | 10 | 32x32 | relu | 11→12
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:15:35
+├─ Duration: 35.217646533s
+├─ Checkpoint Layer: 1
+├─ Batch Size: 16
+├─ Network Layers: 11 → 12
+├─ Scores:
+│  ├─ Train: 59.9291 → 55.0093 (improvement: -4.9198)
+│  └─ Test:  59.0581 → 52.1151 (improvement: -6.9431)
+├─ New Layer Details:
+│  ├─ Index: 10
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 2805.63 MB
+│  └─ System: 5081.24 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (leaky_relu)
+  Layer 3: 32x32 (relu)
+  Layer 4: 32x32 (leaky_relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (leaky_relu)
+  Layer 9: 32x32 (relu)
+→ Layer 10: 32x32 (relu)
+  Layer 11: 10x1 (softmax)
+────────────────────────────────
+4 | 2025-06-10 12:15:53 | 2 | 59.9291 | 59.9291 | +0.0000 | 59.0581 | 59.0581 | +0.0000 | NO | NO | - | - | - | 11→11
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:15:53
+├─ Duration: 53.462817974s
+├─ Checkpoint Layer: 2
+├─ Batch Size: 16
+├─ Network Layers: 11 → 11
+├─ Scores:
+│  ├─ Train: 59.9291 → 59.9291 (improvement: +0.0000)
+│  └─ Test:  59.0581 → 59.0581 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 4393.40 MB
+│  └─ System: 5082.06 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+4 | 2025-06-10 12:16:28 | 3 | 59.9291 | 42.5917 | -17.3374 | 59.0581 | 44.3756 | -14.6825 | YES | NO | 10 | 32x32 | relu | 11→12
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:16:28
+├─ Duration: 1m28.787990997s
+├─ Checkpoint Layer: 3
+├─ Batch Size: 16
+├─ Network Layers: 11 → 12
+├─ Scores:
+│  ├─ Train: 59.9291 → 42.5917 (improvement: -17.3374)
+│  └─ Test:  59.0581 → 44.3756 (improvement: -14.6825)
+├─ New Layer Details:
+│  ├─ Index: 10
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 3709.90 MB
+│  └─ System: 5227.50 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (leaky_relu)
+  Layer 9: 32x32 (relu)
+→ Layer 10: 32x32 (relu)
+  Layer 11: 10x1 (softmax)
+────────────────────────────────
+4 | 2025-06-10 12:16:47 | 4 | 59.9291 | 59.9291 | +0.0000 | 59.0581 | 59.0581 | +0.0000 | NO | NO | - | - | - | 11→11
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:16:47
+├─ Duration: 1m46.996088648s
+├─ Checkpoint Layer: 4
+├─ Batch Size: 16
+├─ Network Layers: 11 → 11
+├─ Scores:
+│  ├─ Train: 59.9291 → 59.9291 (improvement: +0.0000)
+│  └─ Test:  59.0581 → 59.0581 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2412.64 MB
+│  └─ System: 5371.70 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+4 | 2025-06-10 12:17:05 | 5 | 59.9291 | 59.9291 | +0.0000 | 59.0581 | 59.0581 | +0.0000 | NO | NO | - | - | - | 11→11
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:17:05
+├─ Duration: 2m5.173846489s
+├─ Checkpoint Layer: 5
+├─ Batch Size: 16
+├─ Network Layers: 11 → 11
+├─ Scores:
+│  ├─ Train: 59.9291 → 59.9291 (improvement: +0.0000)
+│  └─ Test:  59.0581 → 59.0581 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 2512.01 MB
+│  └─ System: 5371.70 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+4 | 2025-06-10 12:17:42 | 6 | 59.9291 | 51.9297 | -7.9994 | 59.0581 | 48.4304 | -10.6278 | YES | NO | 10 | 32x32 | relu | 11→12
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:17:42
+├─ Duration: 2m42.302433051s
+├─ Checkpoint Layer: 6
+├─ Batch Size: 16
+├─ Network Layers: 11 → 12
+├─ Scores:
+│  ├─ Train: 59.9291 → 51.9297 (improvement: -7.9994)
+│  └─ Test:  59.0581 → 48.4304 (improvement: -10.6278)
+├─ New Layer Details:
+│  ├─ Index: 10
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 3197.12 MB
+│  └─ System: 5372.26 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (relu)
+  Layer 8: 32x32 (leaky_relu)
+  Layer 9: 32x32 (relu)
+→ Layer 10: 32x32 (relu)
+  Layer 11: 10x1 (softmax)
+────────────────────────────────
+4 | 2025-06-10 12:18:00 | 7 | 59.9291 | 59.9291 | +0.0000 | 59.0581 | 59.0581 | +0.0000 | NO | NO | - | - | - | 11→11
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:18:00
+├─ Duration: 3m0.164116681s
+├─ Checkpoint Layer: 7
+├─ Batch Size: 16
+├─ Network Layers: 11 → 11
+├─ Scores:
+│  ├─ Train: 59.9291 → 59.9291 (improvement: +0.0000)
+│  └─ Test:  59.0581 → 59.0581 (improvement: +0.0000)
+├─ Memory Usage:
+│  ├─ Allocated: 3926.34 MB
+│  └─ System: 5372.82 MB
+└─ Decision: ⚠️  NO LAYER FOUND
+────────────────────────────────
+4 | 2025-06-10 12:18:37 | 8 | 59.9291 | 43.9181 | -16.0110 | 59.0581 | 48.0093 | -11.0488 | YES | NO | 10 | 32x32 | relu | 11→12
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:18:37
+├─ Duration: 3m37.308282086s
+├─ Checkpoint Layer: 8
+├─ Batch Size: 16
+├─ Network Layers: 11 → 12
+├─ Scores:
+│  ├─ Train: 59.9291 → 43.9181 (improvement: -16.0110)
+│  └─ Test:  59.0581 → 48.0093 (improvement: -11.0488)
+├─ New Layer Details:
+│  ├─ Index: 10
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 3879.13 MB
+│  └─ System: 5661.27 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (relu)
+  Layer 9: 32x32 (relu)
+→ Layer 10: 32x32 (relu)
+  Layer 11: 10x1 (softmax)
+────────────────────────────────
+4 | 2025-06-10 12:19:16 | 9 | 59.9291 | 48.2679 | -11.6612 | 59.0581 | 44.9276 | -14.1306 | YES | NO | 10 | 32x32 | relu | 11→12
+
+Growth Attempt #4 Details:
+├─ Timestamp: 2025-06-10 12:19:16
+├─ Duration: 4m16.403679728s
+├─ Checkpoint Layer: 9
+├─ Batch Size: 16
+├─ Network Layers: 11 → 12
+├─ Scores:
+│  ├─ Train: 59.9291 → 48.2679 (improvement: -11.6612)
+│  └─ Test:  59.0581 → 44.9276 (improvement: -14.1306)
+├─ New Layer Details:
+│  ├─ Index: 10
+│  ├─ Size: 32x32
+│  └─ Activation: relu
+├─ Memory Usage:
+│  ├─ Allocated: 3061.96 MB
+│  └─ System: 5661.27 MB
+└─ Decision: ❌ REJECTED (Insufficient improvement)
+
+Network Architecture After Attempt:
+  Layer 0: 28x28 (linear)
+  Layer 1: 32x32 (relu)
+  Layer 2: 32x32 (relu)
+  Layer 3: 32x32 (leaky_relu)
+  Layer 4: 32x32 (relu)
+  Layer 5: 32x32 (relu)
+  Layer 6: 32x32 (leaky_relu)
+  Layer 7: 32x32 (leaky_relu)
+  Layer 8: 32x32 (relu)
+  Layer 9: 32x32 (relu)
+→ Layer 10: 32x32 (relu)
+  Layer 11: 10x1 (softmax)
+────────────────────────────────
+
+--- Attempt 5/25 started at 12:19:16 ---
