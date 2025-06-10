@@ -18,22 +18,25 @@ const (
 	modelPath         = "mnist_model_float32.json"
 	dataPath          = "./data/mnist"
 	epochs            = 1
-	learningRate      = 0.5
+	learningRate      = 0.05
 	logFilePath       = "neural_network_growth.log"
 	checkpointFile    = "growth_checkpoint.json"
 	maxGrowthAttempts = 50
-	initialBatchSize  = 16
+	initialBatchSize  = 32
 	trainChunkSize    = 1000
 	testChunkSize     = 200
 	modelsDir         = "./models"
-	globalMinWidth    = 128
-	globalMaxWidth    = 128
+	globalMinWidth    = 8
+	globalMaxWidth    = 8
 
-	globalMinHeight = 1
-	globalMaxHeight = 1
+	globalMinHeight = 8
+	globalMaxHeight = 8
 
-	clippingUp  = 1
-	clippingLow = -1
+	clippingUp  = 2
+	clippingLow = -2
+
+	numCandidates              = 20
+	earlyStopSuccessfulGrowths = 6
 )
 
 var layers = []struct{ Width, Height int }{
@@ -406,7 +409,7 @@ func runGrowthCycle(
 				checkpointLayer,
 				batchInputs,
 				expectedLabels,
-				20, epochs, learningRate, 1e-6,
+				numCandidates, epochs, learningRate, 1e-6,
 				clippingUp, clippingLow,
 				globalMinWidth, globalMaxWidth, globalMinHeight, globalMaxHeight,
 				[]string{"relu", "tanh", "leaky_relu", "sigmoid", "elu"},
@@ -431,8 +434,8 @@ func runGrowthCycle(
 			testImprovement := afterTestScore - baselineTestScore
 
 			// Accept if either improves by >1.0
-			//accepted := layerFound && (trainImprovement > 0.1 || testImprovement > 0.1)
-			accepted := layerFound && (trainImprovement > 0.1)
+			accepted := layerFound && (trainImprovement > 0.001 || testImprovement > 0.001)
+			//accepted := layerFound && (trainImprovement > 0.01)
 			// Log attempt
 			growthAttempt := GrowthAttempt{
 				AttemptNumber:       attempt,
@@ -492,7 +495,7 @@ func runGrowthCycle(
 		}
 
 		// Early termination conditions
-		if successfulGrowths >= 6 {
+		if successfulGrowths >= earlyStopSuccessfulGrowths {
 			fmt.Printf("🎯 Reached %d successful growths, terminating early\n", successfulGrowths)
 			break
 		}
