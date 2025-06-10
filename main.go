@@ -18,7 +18,7 @@ const (
 	modelPath         = "mnist_model_float32.json"
 	dataPath          = "./data/mnist"
 	epochs            = 3
-	learningRate      = 0.01
+	learningRate      = 0.5
 	logFilePath       = "neural_network_growth.log"
 	checkpointFile    = "growth_checkpoint.json"
 	maxGrowthAttempts = 25
@@ -26,10 +26,18 @@ const (
 	trainChunkSize    = 1000
 	testChunkSize     = 200
 	modelsDir         = "./models"
+	globalMinWidth    = 128
+	globalMaxWidth    = 128
+
+	globalMinHeight = 1
+	globalMaxHeight = 1
+
+	clippingUp  = 1
+	clippingLow = -1
 )
 
 var layers = []struct{ Width, Height int }{
-	{28, 28}, {32, 32}, {10, 1},
+	{28, 28}, {globalMinWidth, globalMinHeight}, {10, 1},
 }
 var activations = []string{"linear", "relu", "softmax"}
 var fullyConnected = []bool{true, true, true}
@@ -156,12 +164,18 @@ func main() {
 	if !isResuming {
 		// Build initial network
 		nn = paragon.NewNetwork[float32](
-			[]struct{ Width, Height int }{{28, 28}, {32, 32}, {10, 1}},
+			[]struct{ Width, Height int }{{28, 28}, {globalMinWidth, globalMinHeight}, {10, 1}},
 			[]string{"linear", "relu", "softmax"},
 			[]bool{true, true, true},
 		)
 		startChunk = 0
+
+		// Perform initial training on the first batch
+		firstBatchInputs := trainInputs[0:initialBatchSize]
+		firstBatchTargets := trainTargets[0:initialBatchSize]
+		nn.Train(firstBatchInputs, firstBatchTargets, 5, learningRate, false, clippingUp, clippingLow)
 		fmt.Println("🆕 Starting with fresh network")
+
 	}
 
 	// Enable WebGPU
@@ -392,9 +406,9 @@ func runGrowthCycle(
 				checkpointLayer,
 				batchInputs,
 				expectedLabels,
-				20, 3, 0.01, 1e-6,
-				1.0, -1.0,
-				32, 32, 32, 32,
+				20, 3, learningRate, 1e-6,
+				clippingUp, clippingLow,
+				globalMinWidth, globalMaxWidth, globalMinHeight, globalMaxHeight,
 				[]string{"relu", "tanh", "leaky_relu", "sigmoid", "elu"},
 				maxThreads,
 			)
@@ -417,8 +431,8 @@ func runGrowthCycle(
 			testImprovement := afterTestScore - baselineTestScore
 
 			// Accept if either improves by >1.0
-			accepted := layerFound && (trainImprovement > 1.0 || testImprovement > 1.0)
-
+			//accepted := layerFound && (trainImprovement > 0.1 || testImprovement > 0.1)
+			accepted := layerFound && (trainImprovement > 0.1)
 			// Log attempt
 			growthAttempt := GrowthAttempt{
 				AttemptNumber:       attempt,
